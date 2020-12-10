@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "map_transformer/test_config.hpp"
 #include "map_transformer/transformer.hpp"
 
 #include <gtest/gtest.h>
@@ -20,14 +21,16 @@
 #include <stdexcept>
 #include <string>
 
+using map_transformer::test::TEST_DATA_DIRECTORY;
+
 
 class TestData : public ::testing::Test {
 protected:
   const std::string CorrectYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -44,7 +47,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -65,11 +68,15 @@ robot_map:
     - [433, 304])";
   }
 
+  const std::string NotAYamlDoc() {
+    return "This is not a YAML document.";
+  }
+
   const std::string NonOverlappingYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -86,7 +93,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -107,16 +114,16 @@ robot_map:
     - [433, 304])";
   }
 
-  const std::string NoBaseCorrPointsYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+  const std::string NoRefCorrPointsYamlDoc() {
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -138,10 +145,10 @@ robot_map:
   }
 
   const std::string NoRobotCorrPointsYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -158,7 +165,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -167,10 +174,10 @@ robot_map:
   }
 
   const std::string DifferentNumCorrPointsYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -187,7 +194,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -206,10 +213,10 @@ robot_map:
   }
 
   const std::string NoAffineTransformYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -226,7 +233,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -244,10 +251,10 @@ robot_map:
   }
 
   const std::string ZeroXScaleAffineTransformYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -264,7 +271,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [0, 1]
@@ -286,10 +293,10 @@ robot_map:
   }
 
   const std::string ZeroYScaleAffineTransformYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -306,7 +313,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 0]
@@ -328,10 +335,10 @@ robot_map:
   }
 
   const std::string ZeroBothScaleAffineTransformYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -348,7 +355,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [0, 0]
@@ -369,10 +376,10 @@ robot_map:
     - [433, 304])";
   }
 
-  const std::string NoBaseMapImageYamlDoc() {
-    return
-R"(base_map:
-  name: base
+  const std::string NoRefMapImageYamlDoc() {
+    return std::string(
+R"(ref_map:
+  name: ref
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -381,7 +388,7 @@ R"(base_map:
     - [262, 384]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -395,10 +402,10 @@ robot_map:
   }
 
   const std::string NoRobotMapImageYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -419,11 +426,11 @@ robot_map:
     - [262, 384])";
   }
 
-  const std::string NoBaseMapSizeYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+  const std::string NoRefMapSizeYamlDoc() {
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   correspondence_points:
     - [0, 138]
     - [0, 241]
@@ -439,7 +446,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -461,10 +468,10 @@ robot_map:
   }
 
   const std::string NoRobotMapSizeYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -481,7 +488,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   transform:
     scale: [1, 1]
     rotation: 0
@@ -501,11 +508,11 @@ robot_map:
     - [433, 304])";
   }
 
-  const std::string YamlAndBaseImageDiffSizesYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+  const std::string YamlAndRefImageDiffSizesYamlDoc() {
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [594, 286]
   correspondence_points:
     - [0, 138]
@@ -522,7 +529,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -544,10 +551,10 @@ robot_map:
   }
 
   const std::string YamlAndRobotImageDiffSizesYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -564,7 +571,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [594, 286]
   transform:
     scale: [1, 1]
@@ -585,11 +592,11 @@ robot_map:
     - [433, 304])";
   }
 
-  const std::string BaseMapImageFileDoesntExistYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: nonexistent.png
+  const std::string RefMapImageFileDoesntExistYamlDoc() {
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/nonexistent.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -606,7 +613,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: src/map_transformer/test/test_map_distorted.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/aligned_map_robot.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -628,10 +635,10 @@ robot_map:
   }
 
   const std::string RobotMapImageFileDoesntExistYamlDoc() {
-    return
-R"(base_map:
-  name: base
-  image_file: src/map_transformer/test/test_map.png
+    return std::string(
+R"(ref_map:
+  name: ref
+  image_file: )") + TEST_DATA_DIRECTORY + R"(/aligned_map_ref.png
   size: [694, 386]
   correspondence_points:
     - [0, 138]
@@ -648,7 +655,7 @@ R"(base_map:
     - [433, 241]
 robot_map:
   name: test_map_distorted
-  image_file: nonexistent.png
+  image_file: )" + TEST_DATA_DIRECTORY + R"(/nonexistent.png
   size: [694, 386]
   transform:
     scale: [1, 1]
@@ -676,12 +683,12 @@ void assert_loaded_data_equal_to_yaml(
   std::string const &yaml_doc)
 {
   YAML::Node root = YAML::Load(yaml_doc);
-  ASSERT_EQ(transformer.base_map_name(), root["base_map"]["name"].as<std::string>());
-  ASSERT_EQ(transformer.base_map_image_file(), root["base_map"]["image_file"].as<std::string>());
+  ASSERT_EQ(transformer.ref_map_name(), root["ref_map"]["name"].as<std::string>());
+  ASSERT_EQ(transformer.ref_map_image_file(), root["ref_map"]["image_file"].as<std::string>());
   map_transformer::Vector2D size;
-  size.first = root["base_map"]["size"][0].as<double>();
-  size.second = root["base_map"]["size"][1].as<double>();
-  ASSERT_EQ(transformer.base_map_size(), size);
+  size.first = root["ref_map"]["size"][0].as<double>();
+  size.second = root["ref_map"]["size"][1].as<double>();
+  ASSERT_EQ(transformer.ref_map_size(), size);
   ASSERT_EQ(transformer.robot_map_name(), root["robot_map"]["name"].as<std::string>());
   ASSERT_EQ(transformer.robot_map_image_file(), root["robot_map"]["image_file"].as<std::string>());
   size.first = root["robot_map"]["size"][0].as<double>();
@@ -693,16 +700,16 @@ void assert_loaded_data_equal_to_yaml(
   ASSERT_EQ(transformer.robot_map_scale(), scale);
   double rotation = root["robot_map"]["transform"]["rotation"].as<double>();
   ASSERT_EQ(transformer.robot_map_rotation(), rotation);
-  map_transformer::Vector2D translation;
+  map_transformer::Point2D translation;
   translation.first = root["robot_map"]["transform"]["translation"][0].as<double>();
   translation.second = root["robot_map"]["transform"]["translation"][1].as<double>();
   ASSERT_EQ(transformer.robot_map_translation(), translation);
   auto index = 0;
-  for (auto p : root["base_map"]["correspondence_points"]) {
+  for (auto p : root["ref_map"]["correspondence_points"]) {
     double x = p[0].as<double>();
     double y = p[1].as<double>();
-    ASSERT_TRUE(transformer.base_map_corr_points()[index].first == x &&
-        transformer.base_map_corr_points()[index].second == y);
+    ASSERT_TRUE(transformer.ref_map_corr_points()[index].first == x &&
+        transformer.ref_map_corr_points()[index].second == y);
     ++index;
   }
   index = 0;
@@ -743,18 +750,25 @@ TEST_F(TestData, load_reset) {
   transformer.reset();
 
   map_transformer::Vector2D zeroes{0,0};
+  map_transformer::Point2D zeroes_point{0,0};
   map_transformer::Vector2D ones{1,1};
-  ASSERT_EQ(transformer.base_map_name(), "");
-  ASSERT_EQ(transformer.base_map_image_file(), "");
-  ASSERT_EQ(transformer.base_map_size(), zeroes);
+  ASSERT_EQ(transformer.ref_map_name(), "");
+  ASSERT_EQ(transformer.ref_map_image_file(), "");
+  ASSERT_EQ(transformer.ref_map_size(), zeroes);
   ASSERT_EQ(transformer.robot_map_name(), "");
   ASSERT_EQ(transformer.robot_map_image_file(), "");
   ASSERT_EQ(transformer.robot_map_size(), zeroes);
   ASSERT_EQ(transformer.robot_map_scale(), ones);
   ASSERT_EQ(transformer.robot_map_rotation(), 0);
-  ASSERT_EQ(transformer.robot_map_translation(), zeroes);
-  ASSERT_TRUE(transformer.base_map_corr_points().empty());
+  ASSERT_EQ(transformer.robot_map_translation(), zeroes_point);
+  ASSERT_TRUE(transformer.ref_map_corr_points().empty());
   ASSERT_TRUE(transformer.robot_map_corr_points().empty());
+}
+
+TEST_F(TestData, load_not_a_yaml_doc) {
+  ASSERT_THROW(
+      map_transformer::Transformer transformer(NotAYamlDoc()),
+      std::runtime_error);
 }
 
 TEST_F(TestData, load_nonoverlapping) {
@@ -763,9 +777,9 @@ TEST_F(TestData, load_nonoverlapping) {
     std::runtime_error);
 }
 
-TEST_F(TestData, load_no_base_coor_points) {
+TEST_F(TestData, load_no_ref_coor_points) {
   ASSERT_THROW(
-    map_transformer::Transformer transformer(NoBaseCorrPointsYamlDoc()),
+    map_transformer::Transformer transformer(NoRefCorrPointsYamlDoc()),
     std::runtime_error);
 }
 
@@ -787,7 +801,7 @@ TEST_F(TestData, load_no_affine_transform) {
   map_transformer::Vector2D scale{1, 1};
   ASSERT_EQ(transformer.robot_map_scale(), scale);
   ASSERT_EQ(transformer.robot_map_rotation(), 0);
-  map_transformer::Vector2D translation{0, 0};
+  map_transformer::Point2D translation{0, 0};
   ASSERT_EQ(transformer.robot_map_translation(), translation);
 }
 
@@ -803,10 +817,10 @@ TEST_F(TestData, load_zero_scale_affine_transform) {
     std::runtime_error);
 }
 
-TEST_F(TestData, load_no_base_map_image) {
-  ASSERT_NO_THROW(map_transformer::Transformer transformer(NoBaseMapImageYamlDoc()));
-  map_transformer::Transformer transformer(NoBaseMapImageYamlDoc());
-  ASSERT_EQ(transformer.base_map_image_file(), "");
+TEST_F(TestData, load_no_ref_map_image) {
+  ASSERT_NO_THROW(map_transformer::Transformer transformer(NoRefMapImageYamlDoc()));
+  map_transformer::Transformer transformer(NoRefMapImageYamlDoc());
+  ASSERT_EQ(transformer.ref_map_image_file(), "");
 }
 
 TEST_F(TestData, load_no_robot_map_image) {
@@ -815,9 +829,9 @@ TEST_F(TestData, load_no_robot_map_image) {
   ASSERT_EQ(transformer.robot_map_image_file(), "");
 }
 
-TEST_F(TestData, load_no_base_map_size) {
+TEST_F(TestData, load_no_ref_map_size) {
   ASSERT_THROW(
-    map_transformer::Transformer transformer(NoBaseMapSizeYamlDoc()),
+    map_transformer::Transformer transformer(NoRefMapSizeYamlDoc()),
     std::runtime_error);
 }
 
@@ -827,9 +841,9 @@ TEST_F(TestData, load_no_robot_map_size) {
     std::runtime_error);
 }
 
-TEST_F(TestData, load_yaml_and_base_image_sizes_differ) {
+TEST_F(TestData, load_yaml_and_ref_image_sizes_differ) {
   ASSERT_THROW(
-    map_transformer::Transformer transformer(YamlAndBaseImageDiffSizesYamlDoc()),
+    map_transformer::Transformer transformer(YamlAndRefImageDiffSizesYamlDoc()),
     std::runtime_error);
 }
 
@@ -839,9 +853,9 @@ TEST_F(TestData, load_yaml_and_robot_image_sizes_differ) {
     std::runtime_error);
 }
 
-TEST_F(TestData, load_nonexistent_base_map_image_file) {
+TEST_F(TestData, load_nonexistent_ref_map_image_file) {
   ASSERT_THROW(
-    map_transformer::Transformer transformer(BaseMapImageFileDoesntExistYamlDoc()),
+    map_transformer::Transformer transformer(RefMapImageFileDoesntExistYamlDoc()),
     std::runtime_error);
 }
 

@@ -1,0 +1,34 @@
+ref_map:
+  name: reference
+  image_file: @SAMPLE_DIRECTORY@/aligned_map_ref.png
+  size: [694, 386]
+  correspondence_points:
+    - [0, 138]
+    - [0, 241]
+    - [262, 0]
+    - [262, 384]
+    - [433, 0]
+    - [433, 384]
+    - [692, 138]
+    - [692, 241]
+    - [262, 138]
+    - [262, 241]
+    - [433, 138]
+    - [433, 241]
+robot_map:
+  name: robot
+  image_file: @SAMPLE_DIRECTORY@/aligned_map_robot.png
+  size: [694, 386]
+  correspondence_points:
+    - [0, 138]
+    - [0, 241]
+    - [262, 0]
+    - [262, 384]
+    - [433, 0]
+    - [433, 384]
+    - [692, 138]
+    - [692, 241]
+    - [262, 138]
+    - [262, 241]
+    - [433, 201]
+    - [433, 304]

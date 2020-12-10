@@ -25,15 +25,44 @@ target_include_directories(map_transformer PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(map_transformer ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
-
 target_compile_definitions(map_transformer PRIVATE "MAP_TRANSFORMER_BUILDING_LIBRARY")
+
+add_executable(transform_visualiser src/visualiser.cpp)
+target_include_directories(transform_visualiser PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(transform_visualiser map_transformer ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
+target_compile_definitions(transform_visualiser PUBLIC "MAP_TRANSFORMER_BUILDING_LIBRARY")
+
+set(SAMPLE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/sample)
+configure_file(
+  sample/aligned_map.yaml.in
+  ${CMAKE_CURRENT_BINARY_DIR}/sample/aligned_map.yaml
+  )
+configure_file(
+  sample/offset_map.yaml.in
+  ${CMAKE_CURRENT_BINARY_DIR}/sample/offset_map.yaml
+  )
+file(
+  COPY
+    sample/aligned_map_ref.png
+    sample/aligned_map_robot.png
+    sample/ref_map_100_100.png
+    sample/robot_map_80_110.png
+  DESTINATION
+    ${CMAKE_CURRENT_BINARY_DIR}/sample
+  )
+install(
+  DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/sample
+  DESTINATION share/${PROJECT_NAME}
+  )
 
 install(
   DIRECTORY include/
   DESTINATION include
 )
 install(
-  TARGETS map_transformer
+  TARGETS map_transformer transform_visualiser
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -43,17 +72,34 @@ install(
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  set(TEST_DATA_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
+  configure_file(
+    test_config.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/map_transformer/test_config.hpp
+    )
+
   ament_add_gtest(test_transforms test/test_transforms.cpp)
-  #if(TARGET test_transforms)
-    #ament_target_dependencies(test_loading
-      #)
-    #target_link_libraries(test_loading ${YAML_CPP_LIBRARIES})
-  #endif()
+  if(TARGET test_transforms)
+    ament_target_dependencies(test_transforms
+      )
+    target_link_libraries(test_transforms map_transformer ${YAML_CPP_LIBRARIES})
+    target_include_directories(
+      test_transforms
+      PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+      )
+  endif()
   ament_add_gtest(test_loading test/test_loading.cpp)
   if(TARGET test_loading)
     ament_target_dependencies(test_loading
       )
     target_link_libraries(test_loading map_transformer ${YAML_CPP_LIBRARIES})
+    target_include_directories(
+      test_loading
+      PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+      )
   endif()
 endif()
 

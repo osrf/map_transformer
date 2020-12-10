@@ -1,0 +1,40 @@
+ref_map:
+  name: reference
+  size: [100, 100]
+  image_file: @SAMPLE_DIRECTORY@/ref_map_100_100.png
+  correspondence_points:
+    - [30, 20]
+    - [40, 50]
+    - [70, 50]
+    - [40, 70]
+    - [70, 70]
+    - [40, 20]
+    - [70, 20]
+    - [30, 50]
+    - [99, 50]
+    - [30, 70]
+    - [99, 70]
+    - [40, 99]
+    - [70, 99]
+robot_map:
+  name: robot
+  image_file: @SAMPLE_DIRECTORY@/robot_map_80_110.png
+  size: [80, 110]
+  transform:
+    scale: [1, 1]
+    rotation: 0
+    translation: [30, 20]
+  correspondence_points:
+    - [0, 0]
+    - [10, 20]
+    - [46, 20]
+    - [10, 51]
+    - [40, 55]
+    - [10, 0]
+    - [50, 0]
+    - [0, 20]
+    - [69, 20]
+    - [0, 50]
+    - [69, 59]
+    - [10, 79]
+    - [34, 79]

@@ -12,25 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MAP_TRANSFORMER__XYPAIR_HPP_
-#define MAP_TRANSFORMER__XYPAIR_HPP_
+#ifndef MAP_TRANSFORMER__TEST_CONFIG_HPP_
+#define MAP_TRANSFORMER__TEST_CONFIG_HPP_
 
-namespace map_transformer
-{
+namespace map_transformer {
+namespace test{
 
-typedef struct XYPair {
-  double x;
-  double y;
-} XYPair;
+constexpr auto& TEST_DATA_DIRECTORY = "@TEST_DATA_DIRECTORY@";
 
-bool operator==(const XYPair &lhs, const XYPair &rhs) {
-  return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
-bool operator!=(const XYPair &lhs, const XYPair &rhs) {
-  return !(lhs == rhs);
-}
-
+}  // namespace test
 }  // namespace map_transformer
 
-#endif  // MAP_TRANSFORMER__XYPAIR_HPP_
+#endif  // MAP_TRANSFORMER__TEST_CONFIG_HPP_
