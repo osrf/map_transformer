@@ -103,6 +103,32 @@ if(BUILD_TESTING)
   endif()
 endif()
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  set(DOXYGEN_OUTPUT_DIR "${PROJECT_BINARY_DIR}/xml")
+  set(DOXYGEN_INDEX_FILE "${DOXYGEN_OUTPUT_DIR}/index.xml")
+  set(DOXYGEN_GENERATE_XML YES)
+  set(DOXYGEN_GENERATE_HTML NO)
+  doxygen_add_docs(map_transformer_doxygen
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ALL)
+  set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" ${CMAKE_MODULE_PATH})
+  find_package(Sphinx REQUIRED)
+  SET(SPHINX_INDEX_FILE "${CMAKE_CURRENT_BINARY_DIR}/doc/index.html")
+  add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
+    COMMAND ${SPHINX_EXECUTABLE} -b html
+    -Dbreathe_projects.MapTransformer=${DOXYGEN_OUTPUT_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc
+    ${CMAKE_CURRENT_BINARY_DIR}/doc
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+      MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/doc/conf.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/doc/index.rst
+      ${DOXYGEN_INDEX_FILE}
+    )
+endif()
+
 ament_export_include_directories(
   include
 )
