@@ -99,54 +99,106 @@ void Transformer::reset() {
 }
 
 std::string Transformer::ref_map_name() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _ref_map_name;
 }
 
 std::string Transformer::ref_map_image_file() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _ref_map_image_file;
 }
 
 Vector2D Transformer::ref_map_size() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _ref_map_size;
 }
 
 std::string Transformer::robot_map_name() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_name;
 }
 
 std::string Transformer::robot_map_image_file() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_image_file;
 }
 
 Vector2D Transformer::robot_map_size() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_size;
 }
 
 Vector2D Transformer::robot_map_scale() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_scale;
 }
 
 double Transformer::robot_map_rotation() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_rotation;
 }
 
 Vector2D Transformer::robot_map_translation() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_map_translation;
 }
 
 const CorrespondencePoints& Transformer::ref_map_corr_points() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _ref_corr_points;
 }
 
 const CorrespondencePoints& Transformer::robot_map_corr_points() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _robot_corr_points;
 }
 
 const TriangleList& Transformer::triangle_indices() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   return _triangles;
 }
 
 std::pair<Point2D, Point2D> Transformer::bounding_box() const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   Point2D top_left, bottom_right;
   top_left.first = std::min(0.0f, _robot_map_translation.first);
   top_left.second = std::min(0.0f, _robot_map_translation.second);
@@ -161,6 +213,10 @@ std::pair<Point2D, Point2D> Transformer::bounding_box() const {
 }
 
 Point2D Transformer::to_ref(Point2D const &point) const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   // Check first it it's a correspondence point because we can shortcircuit much of the
   // calculations for those
   int corr_point_index = get_correspondence_point_index(point, _robot_corr_points);
@@ -187,6 +243,10 @@ Point2D Transformer::to_ref(Point2D const &point) const {
 }
 
 Point2D Transformer::to_robot(Point2D const &point) const {
+  if (_empty()) {
+    throw std::logic_error("Transformer must not be empty");
+  }
+
   // Check first it it's a correspondence point because we can shortcircuit much of the
   // calculations for those
   int corr_point_index = get_correspondence_point_index(point, _ref_corr_points);

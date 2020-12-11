@@ -49,6 +49,7 @@ file(
     sample/aligned_map_robot.png
     sample/ref_map_100_100.png
     sample/robot_map_80_110.png
+    src/visualiser.cpp
   DESTINATION
     ${CMAKE_CURRENT_BINARY_DIR}/sample
   )
@@ -127,6 +128,7 @@ if(DOXYGEN_FOUND)
       ${CMAKE_CURRENT_SOURCE_DIR}/doc/index.rst
       ${DOXYGEN_INDEX_FILE}
     )
+  add_custom_target(doc ALL DEPENDS ${SPHINX_INDEX_FILE})
 endif()
 
 ament_export_include_directories(

@@ -749,20 +749,22 @@ TEST_F(TestData, load_reset) {
 
   transformer.reset();
 
-  map_transformer::Vector2D zeroes{0,0};
-  map_transformer::Point2D zeroes_point{0,0};
-  map_transformer::Vector2D ones{1,1};
-  ASSERT_EQ(transformer.ref_map_name(), "");
-  ASSERT_EQ(transformer.ref_map_image_file(), "");
-  ASSERT_EQ(transformer.ref_map_size(), zeroes);
-  ASSERT_EQ(transformer.robot_map_name(), "");
-  ASSERT_EQ(transformer.robot_map_image_file(), "");
-  ASSERT_EQ(transformer.robot_map_size(), zeroes);
-  ASSERT_EQ(transformer.robot_map_scale(), ones);
-  ASSERT_EQ(transformer.robot_map_rotation(), 0);
-  ASSERT_EQ(transformer.robot_map_translation(), zeroes_point);
-  ASSERT_TRUE(transformer.ref_map_corr_points().empty());
-  ASSERT_TRUE(transformer.robot_map_corr_points().empty());
+  ASSERT_THROW(transformer.ref_map_name(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_image_file(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_size(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_name(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_image_file(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_size(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_scale(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_rotation(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_translation(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_corr_points(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_corr_points(), std::logic_error);
+  ASSERT_THROW(transformer.triangle_indices(), std::logic_error);
+  ASSERT_THROW(transformer.bounding_box(), std::logic_error);
+  map_transformer::Point2D point;
+  ASSERT_THROW(transformer.to_ref(point), std::logic_error);
+  ASSERT_THROW(transformer.to_robot(point), std::logic_error);
 }
 
 TEST_F(TestData, load_not_a_yaml_doc) {
@@ -863,4 +865,25 @@ TEST_F(TestData, load_nonexistent_robot_map_image_file) {
   ASSERT_THROW(
     map_transformer::Transformer transformer(RobotMapImageFileDoesntExistYamlDoc()),
     std::runtime_error);
+}
+
+TEST(TestLoading, load_no_data_is_logic_error) {
+  map_transformer::Transformer transformer;
+
+  ASSERT_THROW(transformer.ref_map_name(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_image_file(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_size(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_name(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_image_file(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_size(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_scale(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_rotation(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_translation(), std::logic_error);
+  ASSERT_THROW(transformer.ref_map_corr_points(), std::logic_error);
+  ASSERT_THROW(transformer.robot_map_corr_points(), std::logic_error);
+  ASSERT_THROW(transformer.triangle_indices(), std::logic_error);
+  ASSERT_THROW(transformer.bounding_box(), std::logic_error);
+  map_transformer::Point2D point;
+  ASSERT_THROW(transformer.to_ref(point), std::logic_error);
+  ASSERT_THROW(transformer.to_robot(point), std::logic_error);
 }
