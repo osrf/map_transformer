@@ -60,6 +60,7 @@ install(
   RUNTIME DESTINATION bin
 )
 
+option(BUILD_TESTING "Build tests" ON)
 if(BUILD_TESTING)
   find_package(ament_lint_auto)
   if(AMENT_LINT_AUTO_FOUND)
@@ -72,13 +73,14 @@ if(BUILD_TESTING)
     ${CMAKE_CURRENT_BINARY_DIR}/include/map_transformer/test_config.hpp
     )
 
+  find_package(GTest REQUIRED)
   include(GoogleTest)
 
   add_executable(test_transforms test/test_transforms.cpp)
-  target_link_libraries(test_transforms
   target_include_directories(test_transforms PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     )
+  target_link_libraries(test_transforms
     map_transformer
     ${YAML_CPP_LIBRARIES}
     GTest::GTest
