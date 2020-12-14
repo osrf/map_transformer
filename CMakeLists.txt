@@ -1,22 +1,13 @@
-cmake_minimum_required(VERSION 3.5)
-project(map_transformer)
+cmake_minimum_required(VERSION 3.16)
+project(map_transformer VERSION 0.1)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
@@ -24,15 +15,14 @@ add_library(map_transformer src/transformer.cpp)
 target_include_directories(map_transformer PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(map_transformer ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(map_transformer PUBLIC ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
 target_compile_definitions(map_transformer PRIVATE "MAP_TRANSFORMER_BUILDING_LIBRARY")
 
 add_executable(transform_visualiser src/visualiser.cpp)
 target_include_directories(transform_visualiser PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(transform_visualiser map_transformer ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
-target_compile_definitions(transform_visualiser PUBLIC "MAP_TRANSFORMER_BUILDING_LIBRARY")
+target_link_libraries(transform_visualiser PUBLIC map_transformer ${YAML_CPP_LIBRARIES} ${OpenCV_LIBS})
 
 set(SAMPLE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/sample)
 configure_file(
@@ -71,8 +61,10 @@ install(
 )
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_lint_auto)
+  if(AMENT_LINT_AUTO_FOUND)
+    ament_lint_auto_find_test_dependencies()
+  endif()
 
   set(TEST_DATA_DIRECTORY "${PROJECT_SOURCE_DIR}/test")
   configure_file(
@@ -80,40 +72,52 @@ if(BUILD_TESTING)
     ${CMAKE_CURRENT_BINARY_DIR}/include/map_transformer/test_config.hpp
     )
 
-  ament_add_gtest(test_transforms test/test_transforms.cpp)
-  if(TARGET test_transforms)
-    ament_target_dependencies(test_transforms
-      )
-    target_link_libraries(test_transforms map_transformer ${YAML_CPP_LIBRARIES})
-    target_include_directories(
-      test_transforms
-      PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-      )
-  endif()
-  ament_add_gtest(test_loading test/test_loading.cpp)
-  if(TARGET test_loading)
-    ament_target_dependencies(test_loading
-      )
-    target_link_libraries(test_loading map_transformer ${YAML_CPP_LIBRARIES})
-    target_include_directories(
-      test_loading
-      PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-      )
-  endif()
+  include(GoogleTest)
+
+  add_executable(test_transforms test/test_transforms.cpp)
+  target_link_libraries(test_transforms
+  target_include_directories(test_transforms PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    )
+    map_transformer
+    ${YAML_CPP_LIBRARIES}
+    GTest::GTest
+    GTest::Main)
+  gtest_discover_tests(test_transforms)
+
+  add_executable(test_loading test/test_loading.cpp)
+  target_include_directories(test_loading PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    )
+  target_link_libraries(test_loading
+    map_transformer
+    ${YAML_CPP_LIBRARIES}
+    GTest::GTest
+    GTest::Main)
+  gtest_discover_tests(test_loading)
 endif()
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-  set(DOXYGEN_OUTPUT_DIR "${PROJECT_BINARY_DIR}/xml")
+  set(DOXYGEN_INPUT_DIRECTORIES
+    "${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src")
+  set(DOXYGEN_DOXYFILE_IN "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxyfile.in")
+  set(DOXYGEN_DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/doxyfile")
+  configure_file(${DOXYGEN_DOXYFILE_IN} ${DOXYGEN_DOXYFILE})
+
+  set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/xml")
   set(DOXYGEN_INDEX_FILE "${DOXYGEN_OUTPUT_DIR}/index.xml")
   set(DOXYGEN_GENERATE_XML YES)
   set(DOXYGEN_GENERATE_HTML NO)
-  doxygen_add_docs(map_transformer_doxygen
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ALL)
+  #doxygen_add_docs(map_transformer_doxygen
+    #${CMAKE_CURRENT_SOURCE_DIR}/include
+    #${CMAKE_CURRENT_SOURCE_DIR}/src
+    #ALL)
+  add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${DOXYGEN_OUTPUT_DIR}
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_DOXYFILE}
+    VERBATIM)
+  add_custom_target(doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
   set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" ${CMAKE_MODULE_PATH})
   find_package(Sphinx REQUIRED)
   SET(SPHINX_INDEX_FILE "${CMAKE_CURRENT_BINARY_DIR}/doc/index.html")
@@ -128,17 +132,5 @@ if(DOXYGEN_FOUND)
       ${CMAKE_CURRENT_SOURCE_DIR}/doc/index.rst
       ${DOXYGEN_INDEX_FILE}
     )
-  add_custom_target(doc ALL DEPENDS ${SPHINX_INDEX_FILE})
+  add_custom_target(doc ALL DEPENDS ${SPHINX_INDEX_FILE} doxygen)
 endif()
-
-ament_export_include_directories(
-  include
-)
-ament_export_libraries(
-  map_transformer
-)
-ament_export_targets(
-  export_${PROJECT_NAME}
-)
-
-ament_package()
