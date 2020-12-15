@@ -1,0 +1,621 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Map Transformer documentation &mdash; MapTransformer 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home" alt="Documentation Home"> MapTransformer
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Map Transformer documentation</a></li>
+<li><a class="reference internal" href="#using-the-library">Using the library</a></li>
+<li><a class="reference internal" href="#yaml-file-format">YAML file format</a></li>
+<li><a class="reference internal" href="#sample-application">Sample application</a></li>
+<li><a class="reference internal" href="#api">API</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">MapTransformer</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Map Transformer documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="map-transformer-documentation">
+<h1>Map Transformer documentation<a class="headerlink" href="#map-transformer-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Ths Map Transformer library provides transformations between two maps which may be close but not quite aligned, with the alignment difference varying across the map.
+A point provided in the coordinate space of one map is transformed into the coordinate space of the other, taking account of the non-linear transforms to ensure it is at the equivalent location in the map.</p>
+</div>
+<div class="section" id="using-the-library">
+<h1>Using the library<a class="headerlink" href="#using-the-library" title="Permalink to this headline">¶</a></h1>
+<p>The main entry point to the Map Transformer library is the <cite>map_transformer::Transformer</cite> class.
+This class provides transformations in both directions between a reference map and one other map (termed the “robot map”).</p>
+<p>An instance of the <cite>Transformer</cite> object must be provided with a YAML document to load.
+This can be either passed to the constructor or passed to the <cite>load()</cite> method after construction.
+The YAML document contains information about the two maps, and a list of correspondence points.
+For a description of the YAML file format, see the next section.</p>
+<p>The correspondence points must be provided.
+These points describe which points in one map are equivalent to which points in the other map.
+In other words, point A in the reference map is the same corner of two walls as point B in the robot map, even though those two points may have significantly different coordinates due to differences in map alignment, skew, etc.
+Currently, the correspondence points must be manually calculated and specified by hand.</p>
+<p>In general, the more correspondence points you provide, the more accurate the transformation of points between the two maps will be.</p>
+<p>Once <cite>Transformer</cite> object instance has been constructed and loaded with map information, you can call the following two member functions to transform points.</p>
+<ul class="simple">
+<li><p><cite>to_ref()</cite> Transforms a point from the robot map to its equivalent point in the reference map.</p></li>
+<li><p><cite>to_robot()</cite> Transforms a point from the reference map to its equivalent point in the robot map.</p></li>
+</ul>
+</div>
+<div class="section" id="yaml-file-format">
+<h1>YAML file format<a class="headerlink" href="#yaml-file-format" title="Permalink to this headline">¶</a></h1>
+<p>The YAML file provided as input to the <cite>Transformer</cite> class must comply with the following format.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ref_map</span><span class="p">:</span>
+  <span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">The</span> <span class="n">human</span><span class="o">-</span><span class="n">readable</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="nb">map</span><span class="p">,</span> <span class="k">for</span> <span class="n">visualisation</span> <span class="n">purposes</span><span class="p">]</span>
+  <span class="n">image_file</span><span class="p">:</span> <span class="p">[</span><span class="n">OPTIONAL</span><span class="p">;</span> <span class="n">the</span> <span class="n">path</span> <span class="n">to</span> <span class="n">the</span> <span class="n">image</span> <span class="n">file</span> <span class="k">for</span> <span class="n">the</span> <span class="nb">map</span><span class="p">]</span>
+  <span class="n">size</span><span class="p">:</span> <span class="p">[</span><span class="n">The</span> <span class="n">size</span><span class="p">,</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">of</span> <span class="n">the</span> <span class="nb">map</span> <span class="k">as</span> <span class="n">a</span> <span class="n">pair</span> <span class="n">of</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">80</span><span class="p">]]</span>
+  <span class="n">correspondence_points</span><span class="p">:</span> <span class="p">[</span><span class="n">A</span> <span class="n">YAML</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">pairs</span> <span class="n">of</span> <span class="n">numbers</span> <span class="n">providing</span> <span class="n">the</span> <span class="n">correspondence</span> <span class="n">points</span> <span class="k">for</span> <span class="n">the</span> <span class="n">reference</span> <span class="nb">map</span><span class="o">.</span><span class="p">]</span>
+<span class="n">robot_map</span><span class="p">:</span>
+  <span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">The</span> <span class="n">human</span><span class="o">-</span><span class="n">readable</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="nb">map</span><span class="p">,</span> <span class="k">for</span> <span class="n">visualisation</span> <span class="n">purposes</span><span class="p">]</span>
+  <span class="n">image_file</span><span class="p">:</span> <span class="p">[</span><span class="n">OPTIONAL</span><span class="p">;</span> <span class="n">the</span> <span class="n">path</span> <span class="n">to</span> <span class="n">the</span> <span class="n">image</span> <span class="n">file</span> <span class="k">for</span> <span class="n">the</span> <span class="nb">map</span><span class="p">]</span>
+  <span class="n">size</span><span class="p">:</span> <span class="p">[</span><span class="mi">694</span><span class="p">,</span> <span class="mi">386</span><span class="p">]</span>
+  <span class="n">correspondence_points</span><span class="p">:</span> <span class="p">[</span><span class="n">A</span> <span class="n">YAML</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">pairs</span> <span class="n">of</span> <span class="n">numbers</span> <span class="n">providing</span> <span class="n">the</span> <span class="n">correspondence</span> <span class="n">points</span> <span class="k">for</span> <span class="n">the</span> <span class="n">robot</span> <span class="nb">map</span><span class="o">.</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The correspondence point lists must be in the same order.
+That is, the first point in one list corresponds to the first point in the other list, and so on.</p>
+<p>For example YAML files, see the samples directory.</p>
+</div>
+<div class="section" id="sample-application">
+<h1>Sample application<a class="headerlink" href="#sample-application" title="Permalink to this headline">¶</a></h1>
+<p>A sample application is provided in the source file <cite>visualiser.cpp</cite>.
+This is installed into the <cite>sample</cite> directory, usually located at <cite>&lt;install prefix&gt;/share/map_transformer/sample</cite>.</p>
+<p>The sample application displays the reference map and robot map as specified in a YAML file.
+It can optionally display the correspondence points, triangulation, and triangle ID numbers.</p>
+<p>Launch the sample using a command line similar to the following.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">./transform_visualiser</span> <span class="pre">--map-info-file=/usr/local/share/map_transformer/sample/offset_map.yaml</span> <span class="pre">-c</span> <span class="pre">-n</span> <span class="pre">-t</span>
+<span class="pre">`</span></code></p>
+<p>It will produce an output similar to the following screenshot.</p>
+<img alt="The visualiser sample application." src="_images/visualiser_screenshot.png" />
+<p>Clicking on one of the map images will display:</p>
+<ul class="simple">
+<li><p>the point you clicked on, in red;</p></li>
+<li><p>the equivalent point without transformation in the other map image, in red; and</p></li>
+<li><p>the equivalent point after transformation in othe other map image, in green.</p></li>
+</ul>
+<p>You can also provide your own YAML files to the sample application and visualise them.</p>
+</div>
+<div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<dl class="cpp type">
+<dt id="_CPPv415map_transformer">
+<span id="_CPPv315map_transformer"></span><span id="_CPPv215map_transformer"></span><span id="map_transformer"></span><span class="target" id="namespacemap__transformer"></span><em class="property">namespace </em><code class="sig-name descname">map_transformer</code><a class="headerlink" href="#_CPPv415map_transformer" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Typedefs</p>
+<dl class="cpp type">
+<dt id="_CPPv4N15map_transformer7Point2DE">
+<span id="_CPPv3N15map_transformer7Point2DE"></span><span id="_CPPv2N15map_transformer7Point2DE"></span><span class="target" id="transformer_8hpp_1af43a7b275df2ab3cc68affdb417db080"></span><em class="property">using </em><code class="sig-name descname">Point2D</code> = std::pair&lt;float, float&gt;<a class="headerlink" href="#_CPPv4N15map_transformer7Point2DE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N15map_transformer20CorrespondencePointsE">
+<span id="_CPPv3N15map_transformer20CorrespondencePointsE"></span><span id="_CPPv2N15map_transformer20CorrespondencePointsE"></span><span class="target" id="transformer_8hpp_1aa2d545604613f459860c817b1cf7f066"></span><em class="property">using </em><code class="sig-name descname">CorrespondencePoints</code> = std::vector&lt;<a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a>&gt;<a class="headerlink" href="#_CPPv4N15map_transformer20CorrespondencePointsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N15map_transformer8Vector2DE">
+<span id="_CPPv3N15map_transformer8Vector2DE"></span><span id="_CPPv2N15map_transformer8Vector2DE"></span><span class="target" id="transformer_8hpp_1ad6541aa05109b27bf28bf2c2f3316f8d"></span><em class="property">using </em><code class="sig-name descname">Vector2D</code> = std::pair&lt;float, float&gt;<a class="headerlink" href="#_CPPv4N15map_transformer8Vector2DE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N15map_transformer8TriangleE">
+<span id="_CPPv3N15map_transformer8TriangleE"></span><span id="_CPPv2N15map_transformer8TriangleE"></span><span class="target" id="transformer_8hpp_1a715447969f45431ea39c54e335e95834"></span><em class="property">using </em><code class="sig-name descname">Triangle</code> = std::tuple&lt;int, int, int&gt;<a class="headerlink" href="#_CPPv4N15map_transformer8TriangleE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt id="_CPPv4N15map_transformer12TriangleListE">
+<span id="_CPPv3N15map_transformer12TriangleListE"></span><span id="_CPPv2N15map_transformer12TriangleListE"></span><span class="target" id="transformer_8hpp_1a61798a6d323512df01788427b56743d9"></span><em class="property">using </em><code class="sig-name descname">TriangleList</code> = std::vector&lt;<a class="reference internal" href="#_CPPv4N15map_transformer8TriangleE" title="map_transformer::Triangle">Triangle</a>&gt;<a class="headerlink" href="#_CPPv4N15map_transformer12TriangleListE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp class">
+<dt id="_CPPv4N15map_transformer11TransformerE">
+<span id="_CPPv3N15map_transformer11TransformerE"></span><span id="_CPPv2N15map_transformer11TransformerE"></span><span id="map_transformer::Transformer"></span><span class="target" id="classmap__transformer_1_1Transformer"></span><em class="property">class </em><code class="sig-name descname">Transformer</code><a class="headerlink" href="#_CPPv4N15map_transformer11TransformerE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="cpp class">
+<dt>
+<span class="target" id="classmap__transformer_1_1Transformer"></span><em class="property">class </em><code class="sig-prename descclassname"><a class="reference internal" href="#_CPPv415map_transformer" title="map_transformer">map_transformer</a><code class="sig-prename descclassname">::</code></code><code class="sig-name descname">Transformer</code><br /></dt>
+<dd><p>The Transformer class provides transformation of points between two maps. </p>
+<p>The maps are related by a non-linear transformation. In other words, the relation between two equivalent points in one part of the map is not necessarily the same as between two other equivalent points elsewhere in the map. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N15map_transformer11Transformer11TransformerEv">
+<span id="_CPPv3N15map_transformer11Transformer11TransformerEv"></span><span id="_CPPv2N15map_transformer11Transformer11TransformerEv"></span><span id="map_transformer::Transformer::Transformer"></span><span class="target" id="classmap__transformer_1_1Transformer_1aed08750d658d26d86087dd7af4485b08"></span><code class="sig-name descname">Transformer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15map_transformer11Transformer11TransformerEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a new empty transformer object. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N15map_transformer11Transformer11TransformerERKNSt6stringE">
+<span id="_CPPv3N15map_transformer11Transformer11TransformerERKNSt6stringE"></span><span id="_CPPv2N15map_transformer11Transformer11TransformerERKNSt6stringE"></span><span id="map_transformer::Transformer::Transformer__ssCR"></span><span class="target" id="classmap__transformer_1_1Transformer_1a00e80111f6bc59bc8f639006856cd1cc"></span><code class="sig-name descname">Transformer</code><span class="sig-paren">(</span>std::string <em class="property">const</em> &amp;<em>yaml_doc</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15map_transformer11Transformer11TransformerERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Create a new transformer object and load map information from the provided YAML document. </p>
+<p><dl class="simple">
+<dt><strong>See</strong></dt><dd><p><a class="reference internal" href="#classmap__transformer_1_1Transformer_1aaa5916078024d91443e899ec86c9e3df"><span class="std std-ref">Transformer::load()</span></a> </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[in]</span> <span class="pre">yaml_doc</span></code>: The YAML document to load map information from. Must conform to the required format. </p></li>
+</ul>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::RuntimeError</span></code>: if there is an error translating the YAML document. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N15map_transformer11Transformer4loadERKNSt6stringE">
+<span id="_CPPv3N15map_transformer11Transformer4loadERKNSt6stringE"></span><span id="_CPPv2N15map_transformer11Transformer4loadERKNSt6stringE"></span><span id="map_transformer::Transformer::load__ssCR"></span><span class="target" id="classmap__transformer_1_1Transformer_1aaa5916078024d91443e899ec86c9e3df"></span>void <code class="sig-name descname">load</code><span class="sig-paren">(</span>std::string <em class="property">const</em> &amp;<em>yaml_doc</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15map_transformer11Transformer4loadERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Load map information from the provided YAML document. </p>
+<p><dl class="simple">
+<dt><strong>Pre</strong></dt><dd><p>The Transformer object must be empty (must not already contain map information) before calling <a class="reference internal" href="#classmap__transformer_1_1Transformer_1aaa5916078024d91443e899ec86c9e3df"><span class="std std-ref">Transformer::load()</span></a>. Call <a class="reference internal" href="#classmap__transformer_1_1Transformer_1a90c63595c9510c987ceec92084d70deb"><span class="std std-ref">Transformer::reset()</span></a> to clear a Transformer instance prior to loading new map information. Transformer object instances are empty when first constructed. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[in]</span> <span class="pre">yaml_doc</span></code>: The YAML document to load map information from. Must conform to the required format. </p></li>
+</ul>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::RuntimeError</span></code>: if there is an error translating the YAML document. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer is not empty. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N15map_transformer11Transformer5resetEv">
+<span id="_CPPv3N15map_transformer11Transformer5resetEv"></span><span id="_CPPv2N15map_transformer11Transformer5resetEv"></span><span id="map_transformer::Transformer::reset"></span><span class="target" id="classmap__transformer_1_1Transformer_1a90c63595c9510c987ceec92084d70deb"></span>void <code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15map_transformer11Transformer5resetEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Clear any loaded map information. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer12ref_map_nameEv">
+<span id="_CPPv3NK15map_transformer11Transformer12ref_map_nameEv"></span><span id="_CPPv2NK15map_transformer11Transformer12ref_map_nameEv"></span><span id="map_transformer::Transformer::ref_map_nameC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a064b49b76e7d70942cd322c9b9ba8c21"></span>std::string <code class="sig-name descname">ref_map_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer12ref_map_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the name of the reference map that is loaded. </p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The name of the reference map, as loaded from the YAML document. </p>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer18ref_map_image_fileEv">
+<span id="_CPPv3NK15map_transformer11Transformer18ref_map_image_fileEv"></span><span id="_CPPv2NK15map_transformer11Transformer18ref_map_image_fileEv"></span><span id="map_transformer::Transformer::ref_map_image_fileC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a650a08c2c2e0dbaf37f6a72a0e999106"></span>std::string <code class="sig-name descname">ref_map_image_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer18ref_map_image_fileEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the path to the image file for the reference map, if there is one. </p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The path to the image file for the reference map, or an empty string if no image file is available. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer12ref_map_sizeEv">
+<span id="_CPPv3NK15map_transformer11Transformer12ref_map_sizeEv"></span><span id="_CPPv2NK15map_transformer11Transformer12ref_map_sizeEv"></span><span id="map_transformer::Transformer::ref_map_sizeC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a59a5d1dea6e33398eeb3d4f67e68e402"></span><a class="reference internal" href="#_CPPv4N15map_transformer8Vector2DE" title="map_transformer::Vector2D">Vector2D</a> <code class="sig-name descname">ref_map_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer12ref_map_sizeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the dimensions of the reference map. </p>
+<p>The dimensions are measured in arbitrary units, equivalent to the number of pixels (i.e. the image resolution) in the reference map image if there is one.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The dimensions of the reference map. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer14robot_map_nameEv">
+<span id="_CPPv3NK15map_transformer11Transformer14robot_map_nameEv"></span><span id="_CPPv2NK15map_transformer11Transformer14robot_map_nameEv"></span><span id="map_transformer::Transformer::robot_map_nameC"></span><span class="target" id="classmap__transformer_1_1Transformer_1ac790a927d428397df27b31c751fe74d3"></span>std::string <code class="sig-name descname">robot_map_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer14robot_map_nameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the name of the robot map that is loaded. </p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>A string containing the name of the robot map, as loaded from the YAML document. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer20robot_map_image_fileEv">
+<span id="_CPPv3NK15map_transformer11Transformer20robot_map_image_fileEv"></span><span id="_CPPv2NK15map_transformer11Transformer20robot_map_image_fileEv"></span><span id="map_transformer::Transformer::robot_map_image_fileC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a22be31662689bd2887f8e37cc0945782"></span>std::string <code class="sig-name descname">robot_map_image_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer20robot_map_image_fileEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the path to the image file for the robot map, if there is one. </p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The path to the image file for the robot map, or an empty string if no image file is available. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer14robot_map_sizeEv">
+<span id="_CPPv3NK15map_transformer11Transformer14robot_map_sizeEv"></span><span id="_CPPv2NK15map_transformer11Transformer14robot_map_sizeEv"></span><span id="map_transformer::Transformer::robot_map_sizeC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a1a574304fe16d778e545bd6416d1f68d"></span><a class="reference internal" href="#_CPPv4N15map_transformer8Vector2DE" title="map_transformer::Vector2D">Vector2D</a> <code class="sig-name descname">robot_map_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer14robot_map_sizeEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the dimensions of the robot map. </p>
+<p>The dimensions are measured in arbitrary units, equivalent to the number of pixels (i.e. the image resolution) in the robot map image if there is one.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The dimensions of the robot map, as a Vector2D. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer15robot_map_scaleEv">
+<span id="_CPPv3NK15map_transformer11Transformer15robot_map_scaleEv"></span><span id="_CPPv2NK15map_transformer11Transformer15robot_map_scaleEv"></span><span id="map_transformer::Transformer::robot_map_scaleC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a91eb9d160627efaa975e0fc052d1efb2"></span><a class="reference internal" href="#_CPPv4N15map_transformer8Vector2DE" title="map_transformer::Vector2D">Vector2D</a> <code class="sig-name descname">robot_map_scale</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer15robot_map_scaleEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the relative scale of the robot map to the reference map. </p>
+<p>The robot map may be at a different scale to the reference map. The scale is loaded from the YAML document, and is provided as a value with 1 meaning equal scale, less than 1 meaning the robot map scale is smaller than the reference map, and greater than one meaning the robot map scale is larger than the reference map. The X and Y values can be used as a scaling transformation between the reference map and the robot map.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The relative scale of the robot map to the reference map, as an X,Y pair. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer18robot_map_rotationEv">
+<span id="_CPPv3NK15map_transformer11Transformer18robot_map_rotationEv"></span><span id="_CPPv2NK15map_transformer11Transformer18robot_map_rotationEv"></span><span id="map_transformer::Transformer::robot_map_rotationC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a5f55a2608f7241309fe68323d91c0e73"></span>double <code class="sig-name descname">robot_map_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer18robot_map_rotationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the relative rotation of the robot map around the reference map’s origin. </p>
+<p>The robot map may be rotated relative to the reference map. The rotation is loaded from the YAML document, and is provided via this member as an angle in radians. This value can be used to construct a rotational transform from the reference map to the robot map and vice versa.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The relative rotation of the robot map to the reference map, as an angle in radians. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer21robot_map_translationEv">
+<span id="_CPPv3NK15map_transformer11Transformer21robot_map_translationEv"></span><span id="_CPPv2NK15map_transformer11Transformer21robot_map_translationEv"></span><span id="map_transformer::Transformer::robot_map_translationC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a0b9490f950c4eb63f70b2a7421eb2291"></span><a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a> <code class="sig-name descname">robot_map_translation</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer21robot_map_translationEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the relative translation of the robot map from the reference map’s origin. </p>
+<p>The robot map may be offset from the reference map. The offset is loaded from the YAML document, and is provided via this member as an offset in X and Y. This value can be used to construct a translational transform from the reference map to the robot map and vice versa.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The translation from the reference map’s origin to the robot map’s origin. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer19ref_map_corr_pointsEv">
+<span id="_CPPv3NK15map_transformer11Transformer19ref_map_corr_pointsEv"></span><span id="_CPPv2NK15map_transformer11Transformer19ref_map_corr_pointsEv"></span><span id="map_transformer::Transformer::ref_map_corr_pointsC"></span><span class="target" id="classmap__transformer_1_1Transformer_1acd04fe5d1304959ebf2f89a5ecf6203d"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N15map_transformer20CorrespondencePointsE" title="map_transformer::CorrespondencePoints">CorrespondencePoints</a> &amp;<code class="sig-name descname">ref_map_corr_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer19ref_map_corr_pointsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the list of correspondence points in the reference map. </p>
+<p>The correspondence points in the reference map are one-to-one matched to the correspondence points in the robot map. This means that each entry in this list is matched to its same-indexed entry in the list provided by <a class="reference internal" href="#classmap__transformer_1_1Transformer_1a1c9e84fc1d3d7bb6786393e9451a6166"><span class="std std-ref">robot_map_corr_points()</span></a>. For example, the point in this list at index 5 is matched to the point in the robot map correspondence points list at index 5.</p>
+<p>This list is provided for visualisation and debugging purposes.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The list of correspondence points in the reference map. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer21robot_map_corr_pointsEv">
+<span id="_CPPv3NK15map_transformer11Transformer21robot_map_corr_pointsEv"></span><span id="_CPPv2NK15map_transformer11Transformer21robot_map_corr_pointsEv"></span><span id="map_transformer::Transformer::robot_map_corr_pointsC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a1c9e84fc1d3d7bb6786393e9451a6166"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N15map_transformer20CorrespondencePointsE" title="map_transformer::CorrespondencePoints">CorrespondencePoints</a> &amp;<code class="sig-name descname">robot_map_corr_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer21robot_map_corr_pointsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the list of correspondence points in the robot map. </p>
+<p>The correspondence points in the robot map are one-to-one matched to the correspondence points in the reference map. This means that each entry in this list is matched to its same-indexed entry in the list provided by <a class="reference internal" href="#classmap__transformer_1_1Transformer_1acd04fe5d1304959ebf2f89a5ecf6203d"><span class="std std-ref">ref_map_corr_points()</span></a>. For example, the point in this list at index 5 is matched to the point in the reference map correspondence points list at index 5.</p>
+<p>This list is provided for visualisation and debugging purposes.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The list of correspondence points in the robot map. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer16triangle_indicesEv">
+<span id="_CPPv3NK15map_transformer11Transformer16triangle_indicesEv"></span><span id="_CPPv2NK15map_transformer11Transformer16triangle_indicesEv"></span><span id="map_transformer::Transformer::triangle_indicesC"></span><span class="target" id="classmap__transformer_1_1Transformer_1aac5ee9bd6ff525585e6cca81268845c1"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N15map_transformer12TriangleListE" title="map_transformer::TriangleList">TriangleList</a> &amp;<code class="sig-name descname">triangle_indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer16triangle_indicesEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the list of triangles calculated by the Delaunay triangulation. </p>
+<p>This triangle list is provided for visualisation and debugging purposes.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The calculated triangles, as indices into the correspondence point lists. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer12bounding_boxEv">
+<span id="_CPPv3NK15map_transformer11Transformer12bounding_boxEv"></span><span id="_CPPv2NK15map_transformer11Transformer12bounding_boxEv"></span><span id="map_transformer::Transformer::bounding_boxC"></span><span class="target" id="classmap__transformer_1_1Transformer_1ab50ac030329078f2f17fd21698b4652c"></span>std::pair&lt;<a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a>, <a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a>&gt; <code class="sig-name descname">bounding_box</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer12bounding_boxEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the bounding box of the two maps. </p>
+<p>Returns the bounding box (with one corner at 0, 0) of the two maps. This is the total size of the two maps. If the robot map is aligned with the reference map, it will be the size of the reference/robot map. However, if the robot map is offset, it will be larger, containing the size of an image that is needed to hold both the reference map and the robot map.</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>The bounding box of the two maps. </p>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer6to_refERK7Point2D">
+<span id="_CPPv3NK15map_transformer11Transformer6to_refERK7Point2D"></span><span id="_CPPv2NK15map_transformer11Transformer6to_refERK7Point2D"></span><span id="map_transformer::Transformer::to_ref__Point2DCRC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a4bdbc427c28f2f45469ea0ee380bc227"></span><a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a> <code class="sig-name descname">to_ref</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a> <em class="property">const</em> &amp;<em>point</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer6to_refERK7Point2D" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transform a point in the robot map to its equivalent point in the reference map. </p>
+<p>The transform is performed according to the affine transforms of the Delaunay triangles that were calculated when the map information was loaded, along with the transformation from the robot map to the reference map, if any.</p>
+<p><dl class="simple">
+<dt><strong>Note</strong></dt><dd><p>If the point lies outside of all Delaunay triangles, it will be transformed only by the relative map transformation. This may or may not be accurate depending on your maps. In the general case, you should assume that any points that lie outside the Delaunay triangulation (i.e. are not enclosed by correspondence points) cannot be transformed accurately.</p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>The transformed point in the reference map. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">point</span></code>: The point in the robot map to transform. </p></li>
+</ul>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::RuntimeError</span></code>: if an error occurs in the calculations. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK15map_transformer11Transformer8to_robotERK7Point2D">
+<span id="_CPPv3NK15map_transformer11Transformer8to_robotERK7Point2D"></span><span id="_CPPv2NK15map_transformer11Transformer8to_robotERK7Point2D"></span><span id="map_transformer::Transformer::to_robot__Point2DCRC"></span><span class="target" id="classmap__transformer_1_1Transformer_1a4fbfb9b3c00fec164e7d5c5dc6752432"></span><a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a> <code class="sig-name descname">to_robot</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N15map_transformer7Point2DE" title="map_transformer::Point2D">Point2D</a> <em class="property">const</em> &amp;<em>point</em><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4NK15map_transformer11Transformer8to_robotERK7Point2D" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Transform a point in the reference map to its equivalent point in the robot map. </p>
+<p>The transform is performed according to the affine transforms of the Delaunay triangles that were calculated when the map information was loaded, along with the transformation from the reference map to the robot map, if any.</p>
+<p><dl class="simple">
+<dt><strong>Note</strong></dt><dd><p>If the point lies outside of all Delaunay triangles, it will be transformed only by the relative map transformation. This may or may not be accurate depending on your maps. In the general case, you should assume that any points that lie outside the Delaunay triangulation (i.e. are not enclosed by correspondence points) cannot be transformed accurately.</p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>The transformed point in the robot map. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">point</span></code>: The point in the reference map to transform. </p></li>
+</ul>
+</dd>
+<dt><strong>Exceptions</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">std::RuntimeError</span></code>: if an error occurs in the calculations. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std::LogicError</span></code>: if the Transformer has no loaded map information. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Geoffrey Biggs
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

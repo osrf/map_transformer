@@ -1,19 +1,26 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+# -- ReadTheDocs customisation -----------------------------------------------
 
-# -- Path setup --------------------------------------------------------------
+import subprocess, os
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+def configureDoxyfile(input_dir, output_dir):
+    with open('doxyfile.in', 'r') as f:
+        lines = f.read()
+    lines = lines.replace('@DOXYGEN_INPUT_DIRS@', input_dir)
+    lines = lines.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
 
+    with open('Doxyfile', 'w') as of:
+        of.write(lines)
+
+rtd_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+breathe_projects = {}
+
+if rtd_build:
+    input_dir = '../include ../src'
+    output_dir = 'build'
+    configureDoxyfile(input_dir, output_dir)
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['MapTransformer'] = output_dir + '/xml'
 
 # -- Project information -----------------------------------------------------
 
