@@ -9,7 +9,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(OpenCV REQUIRED)
-find_package(yaml-cpp REQUIRED)
+find_package(yaml_cpp_vendor REQUIRED)
 
 add_library(map_transformer src/transformer.cpp)
 target_include_directories(map_transformer PUBLIC
