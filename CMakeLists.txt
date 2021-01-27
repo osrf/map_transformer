@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(map_transformer VERSION 1.0.2)
+project(map_transformer VERSION 1.0.3)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
